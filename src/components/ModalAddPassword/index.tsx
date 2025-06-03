@@ -1,10 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X, Eye, EyeOff } from "@geist-ui/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { updateModals } from "@/store/modules/Modals/actions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { ApplicationState } from "@/store";
+import { updateUserRequest } from "@/store/modules/User/actions";
+import { ISenhas } from "@/store/modules/User/types";
+import { LoaderPinwheel } from "lucide-react";
 
 interface ModalAddSenhaProps {
   show: boolean;
@@ -20,13 +24,29 @@ export default function ModalAddSenha({
   password,
 }: ModalAddSenhaProps) {
   const [nome, setNome] = useState("");
+  const [loading, setloading] = useState(false);
   const [revealed, setRevealed] = useState(false);
+  const [senhasSalvas, setSenhasSalvas] = useState<ISenhas[] | undefined>([]);
+  const user = useSelector(
+    (state: ApplicationState) => state?.User.data
+  );
   const dispatch = useDispatch();
-
+useEffect(() => {
+  setSenhasSalvas([
+    ...(user?.senhasSalvas || []),
+    { nome: nome, senha: password, id: Date.now() },
+  ]);
+},[nome])
   const handleSave = () => {
-    onSave();
-    setRevealed(false);
-    dispatch(updateModals({ passwords: true }));
+    setloading(true)
+    dispatch(updateUserRequest({senhasSalvas: senhasSalvas, id: user?.id, email:user?.email}));
+    setTimeout(() => {
+      onSave();
+      setRevealed(false);
+      dispatch(updateModals({ passwords: true }));
+      setNome("");
+      setloading(false);
+    },1000)
   };
 
   return (
@@ -103,10 +123,10 @@ export default function ModalAddSenha({
                 Cancelar
               </button>
               <button
-                onClick={handleSave}
-                className="px-4 py-2 cursor-pointer bg-violet-600 text-white rounded-md hover:bg-violet-700 transition"
+                onClick={() => handleSave()}
+                className="px-4 py-2 cursor-pointer min-w-20 flex justify-center items-center bg-violet-600 text-white rounded-md hover:bg-violet-700 transition"
               >
-                Salvar
+                {loading ? <LoaderPinwheel className="animate-spin"/> : "Salvar"}
               </button>
             </div>
           </motion.div>

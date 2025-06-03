@@ -80,7 +80,7 @@ export const authOptions = {
     },
   },
   pages: {
-    signIn: "/login", // Página personalizada de login
+    signIn: "/", // Página personalizada de login
   },
 };
 

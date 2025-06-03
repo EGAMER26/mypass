@@ -6,7 +6,7 @@ const INNITAL_STATE: RepositoriesState = {
     id: undefined,
     nome: null,
     email: null,
-    ProfilePic: null,
+    profilePic: null,
     typeAuth: null,
     senhasSalvas: [],
     createdAt: undefined,
@@ -15,24 +15,31 @@ const INNITAL_STATE: RepositoriesState = {
   loading: false,
 };
 
-interface LoadCartSuccessAction {
+interface LoadUserSuccessAction {
   type: typeof UserTypes.LOAD_USER_SUCCES;
   payload: { data: IUser };
 }
 
-interface GetCartRequestAction {
+interface UpdateUserAction {
+  type: typeof UserTypes.UPDATE_USER_REQUEST;
+  payload: { data: IUser };
+}
+
+interface GetUserRequestAction {
   type: typeof UserTypes.GET_USER_REQUEST;
 }
 
-interface LoadCartFailureAction {
+interface LoadUserFailureAction {
   type: typeof UserTypes.LOAD_USER_FAILURE;
 }
 
-type CartAction = GetCartRequestAction | LoadCartSuccessAction | LoadCartFailureAction;
+type UserAction = GetUserRequestAction | UpdateUserAction | LoadUserSuccessAction | LoadUserFailureAction;
 
-const reducer: Reducer<RepositoriesState, CartAction> = (state = INNITAL_STATE, action) => {
+const reducer: Reducer<RepositoriesState, UserAction> = (state = INNITAL_STATE, action) => {
   switch (action.type) {
     case UserTypes.GET_USER_REQUEST:
+      return { ...state, loading: true };
+      case UserTypes.UPDATE_USER_REQUEST:
       return { ...state, loading: true };
     case UserTypes.LOAD_USER_SUCCES:
       return {

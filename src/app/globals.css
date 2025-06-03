@@ -5,8 +5,34 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --font-size-base: 1rem; /* Tamanho padrão */
+}
+.scrollbar-hidden {
+  /* Para Webkit (Chrome, Safari) */
+  &::-webkit-scrollbar {
+    display: none; /* Ou width: 0; */
+  }
+
+  /* Para Firefox */
+  scrollbar-width: none;
 }
 
+/* Opcional: Para Internet Explorer e Edge (se ainda precisar de suporte) */
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+}
+
+.font-size-small {
+  --font-size-base: 0.9rem; /* 90% do tamanho padrão */
+}
+
+.font-size-medium {
+  --font-size-base: 1rem; /* Tamanho padrão */
+}
+
+.font-size-large {
+  --font-size-base: 1.1rem; /* 110% do tamanho padrão */
+}
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -25,4 +51,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  
+}
+
+html {
+  font-size: var(--font-size-base); /* Aplica o tamanho base ao elemento raiz */
 }

@@ -7,6 +7,7 @@ const INNITAL_STATE: RepositoriesState = {
     perfil: false,
     login: false,
     cadastro: false,
+    profile: false,
   },
   error: false,
   loading: false,

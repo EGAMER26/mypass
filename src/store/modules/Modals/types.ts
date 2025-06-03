@@ -12,6 +12,7 @@ export interface IModals {
   perfil?: boolean;
   login?: boolean;
   cadastro?: boolean;
+  profile?: boolean;
 }
 
 // State type
