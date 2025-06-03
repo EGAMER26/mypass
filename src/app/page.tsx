@@ -9,6 +9,8 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ModalCadastro from "@/components/ModalCadastro";
+import VLibras from "vlibras-nextjs";
+
 
 export default function PasswordGenerator() {
   const [password, setPassword] = useState("");
@@ -238,7 +240,7 @@ useEffect(() => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid text-center grid-cols-1 md:grid-cols-2 gap-4">
                 <div
                   onClick={() => setUseUppercase(!useUppercase)}
                   className={`cursor-pointer p-4 rounded-xl border-2 transition-all duration-200 ${
@@ -519,6 +521,8 @@ useEffect(() => {
         </div>
       </footer>
     </div>
+              <VLibras forceOnload />
+    
     </>
 
   );

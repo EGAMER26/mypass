@@ -43,10 +43,10 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 w-full py-4 z-10 bg-violet-500 dark:bg-violet-600 text-gray-900 dark:text-gray-100 px-6 md:px-12 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 transition-colors duration-300">
-      <div className="flex items-center gap-2 justify-center">
-    <Image src={"/assets/logo.png"} alt="logo MyPass" width={20} height={3}/>
-      <h1 className="text-xl font-bold">MyPass</h1>
+    <header className="fixed top-0 w-full py-2 z-10 bg-violet-500 dark:bg-violet-600 text-gray-900 dark:text-gray-100 px-6 md:px-12 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 transition-colors duration-300">
+      <div className="flex bg-white dark:bg-linear-to-tl dark:bg-gray-100 w-16 rounded-full p-2 items-center gap-2 justify-center">
+    <Image src={"/assets/logo02.png"} alt="logo MyPass" width={40} height={2}/>
+      {/* <h1 className="text-xl font-bold">MyPass</h1> */}
       </div>
 
       <div className="flex items-center gap-4">
