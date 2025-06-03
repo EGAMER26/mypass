@@ -76,7 +76,7 @@ export const authOptions = {
       if (url === "http://localhost:3000/presentes") {
         return url.startsWith(baseUrl) ? url : baseUrl;
       }
-      return `${baseUrl}/sections`;
+      return `${baseUrl}`;
     },
   },
   pages: {
