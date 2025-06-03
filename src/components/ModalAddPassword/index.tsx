@@ -25,7 +25,6 @@ export default function ModalAddSenha({
 
   const handleSave = () => {
     onSave();
-    setNome("");
     setRevealed(false);
     dispatch(updateModals({ passwords: true }));
   };

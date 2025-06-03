@@ -120,7 +120,7 @@ useEffect(() => {
   return (
     <>
     <ModalSenhas show={showPasswords}/>
-    <ModalAddSenha show={showAddPasswords} onClose={() => setShowAddPasswords(false)} onSave={() => setShowPasswords(true)} password={password} />
+    <ModalAddSenha show={showAddPasswords} onClose={() => setShowAddPasswords(false)} onSave={() => setShowAddPasswords(false)} password={password} />
     <LoginForm />
     <ModalCadastro />
     <div
@@ -497,13 +497,13 @@ useEffect(() => {
             </div>
             <div className="flex space-x-6">
               <a
-                href="#"
+                href="/politicaprivacidade"
                 className="text-sm text-gray-600 hover:text-violet-500 dark:text-gray-400 dark:hover:text-violet-400 transition-colors duration-300"
               >
                 Política de Privacidade
               </a>
               <a
-                href="#"
+                href="/termoServico"
                 className="text-sm text-gray-600 hover:text-violet-500 dark:text-gray-400 dark:hover:text-violet-400 transition-colors duration-300"
               >
                 Termos de Uso
