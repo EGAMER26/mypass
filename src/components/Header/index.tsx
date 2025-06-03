@@ -5,6 +5,7 @@ import UserOptions from "@/components/UserOptions"; // ajuste o caminho conforme
 import { LayoutList } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { updateModals } from "@/store/modules/Modals/actions";
+import Image from "next/image";
 
 const Header = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -43,7 +44,10 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 w-full py-4 z-10 bg-violet-500 dark:bg-violet-600 text-gray-900 dark:text-gray-100 px-6 md:px-12 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 transition-colors duration-300">
+      <div className="flex items-center gap-2 justify-center">
+    <Image src={"/assets/logo.png"} alt="logo MyPass" width={20} height={3}/>
       <h1 className="text-xl font-bold">MyPass</h1>
+      </div>
 
       <div className="flex items-center gap-4">
         {/* Aqui substituímos o botão de imagem estático por <UserOptions /> */}
