@@ -1,12 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X, Eye, EyeOff } from "@geist-ui/icons"; // Import Eye and EyeOff icons
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import { ApplicationState } from "@/store";
 import { updateModals } from "@/store/modules/Modals/actions";
+import { postUsersRequest } from "@/store/modules/Users/actions";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { LoaderPinwheel } from "lucide-react";
 
 type FormData = {
   nome: string;
@@ -22,15 +27,100 @@ export default function ModalCadastro() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<FormData>();
 
-  const onSubmit = async (data: FormData) => {
-    // Aqui você faria a requisição para a API de cadastro
-    console.log("Cadastro:", data);
-    // Exemplo:
-    // await fetch('/api/register', { method: 'POST', body: JSON.stringify(data) });
+  // State for password strength
+  const [strengthLevel, setStrengthLevel] = useState("weak");
+  const [strength, setStrength] = useState(0);
+  const [strengthText, setStrengthText] = useState("Fraca");
+
+  // State for password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const users = useSelector((state: ApplicationState) => state?.Users.data);
+  const loading = useSelector((state: ApplicationState) => state?.Users.loading);
+
+  // Watch the password field for changes
+  const password = watch("password");
+  const router = useRouter();
+
+  // Effect to update password strength whenever the password changes
+  useEffect(() => {
+    if (password) {
+      updatePasswordStrength(password);
+    } else {
+      // Reset strength when password field is empty
+      setStrength(0);
+      setStrengthLevel("weak");
+      setStrengthText("Fraca");
+    }
+  }, [password]);
+
+  // Function to update password strength indicator
+  const updatePasswordStrength = (currentPassword: string) => {
+    let newStrength = 0;
+
+    // Length contribution
+    const lengthScore = Math.min(currentPassword.length / 12, 1) * 40;
+    newStrength += lengthScore;
+
+    // Character type contribution
+    const hasUppercase = /[A-Z]/.test(currentPassword);
+    const hasLowercase = /[a-z]/.test(currentPassword);
+    const hasNumbers = /[0-9]/.test(currentPassword);
+    const hasSymbols = /[^A-Za-z0-9]/.test(currentPassword);
+
+    const typesCount = [
+      hasUppercase,
+      hasLowercase,
+      hasNumbers,
+      hasSymbols,
+    ].filter(Boolean).length;
+    const typeScore = (typesCount / 4) * 60;
+    newStrength += typeScore;
+
+    setStrength(newStrength);
+
+    // Update UI text and level based on strength score
+    if (newStrength < 40) {
+      setStrengthLevel("weak");
+      setStrengthText("Fraca");
+    } else if (newStrength < 70) {
+      setStrengthLevel("medium");
+      setStrengthText("Média");
+    } else {
+      setStrengthLevel("strong");
+      setStrengthText("Forte");
+    }
   };
+
+  // Function to toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const onSubmit = async (data: FormData) => {
+      const exist = users.find((value) => value.email === data.email);
+      if(exist) {
+        toast.error('E-mail já cadastrado',
+          {theme: "dark"}
+        )
+        return
+      }
+      // setTimeout(() => {
+        dispatch(postUsersRequest({nome: data.nome, email: data.email, senha: data.password, typeAuth: 'Tradicional', profilePic: ""}))
+      // },1000)
+      if(!loading) {
+        await signIn("credentials", {
+          redirect: false, // Não redireciona automaticamente, vamos lidar com o resultado
+          email: data.email,
+          password: data.password,
+        });
+        dispatch(updateModals({ cadastro: false }))
+        router.push("/");
+      }
+    };
 
   return (
     <AnimatePresence>
@@ -107,28 +197,76 @@ export default function ModalCadastro() {
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Senha
                 </label>
-                <input
-                  type="password"
-                  {...register("password", { required: "Senha é obrigatória" })}
-                  className={`w-full px-4 py-2 rounded-lg border ${
-                    errors.password
-                      ? "border-red-500"
-                      : "border-gray-300 dark:border-zinc-700"
-                  } bg-white dark:bg-zinc-800 text-gray-900 dark:text-white mt-1`}
-                  placeholder="••••••••"
-                />
+                <div className="relative"> {/* Added relative positioning for the button */}
+                  <input
+                    type={showPassword ? "text" : "password"} // Dynamically set type
+                    {...register("password", { required: "Senha é obrigatória" })}
+                    className={`w-full px-4 py-2 rounded-lg border ${
+                      errors.password
+                        ? "border-red-500"
+                        : "border-gray-300 dark:border-zinc-700"
+                    } bg-white dark:bg-zinc-800 text-gray-900 dark:text-white mt-1 pr-10`} 
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button" // Important: set type to "button" to prevent form submission
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition"
+                    aria-label={
+                      showPassword ? "Ocultar senha" : "Exibir senha"
+                    }
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-sm text-red-500 mt-1">
                     {errors.password.message}
                   </p>
                 )}
+
+                {/* Password strength indicator */}
+                <div className="mt-3">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-xs text-gray-600 dark:text-gray-300">
+                      Força da senha:
+                    </span>
+                    <span
+                      className={`text-xs font-medium ${
+                        strengthLevel === "weak"
+                          ? "text-red-500"
+                          : strengthLevel === "medium"
+                          ? "text-yellow-500"
+                          : "text-green-500"
+                      }`}
+                    >
+                      {strengthText}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5 transition-colors duration-300">
+                    <div
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        strengthLevel === "weak"
+                          ? "bg-red-500"
+                          : strengthLevel === "medium"
+                          ? "bg-yellow-500"
+                          : "bg-green-500"
+                      }`}
+                      style={{ width: `${strength}%` }}
+                    ></div>
+                  </div>
+                </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-violet-500 hover:bg-violet-600 text-white font-semibold py-2 px-4 rounded-lg transition"
+                className="w-full text-center flex justify-center items-center bg-violet-500 hover:bg-violet-600 text-white font-semibold py-2 px-4 rounded-lg transition"
               >
-                Criar conta
+                {loading ? <LoaderPinwheel className="animate-spin"/> : "Criar conta"}
               </button>
             </form>
 

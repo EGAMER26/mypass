@@ -46,11 +46,11 @@ function* getUser(
 function* updateUser(
   action: ActionType<typeof updateUserRequest>
 ): Generator<Effect, void, unknown> {
-  const { email, senhasSalvas, id } = action.payload;
+  const { email, senhasSalvas, nome,  id } = action.payload;
   console.log('senhasSalvas', id, senhasSalvas)
   try {
     (
-      yield call(api.put, `/${id}`, { senhasSalvas: senhasSalvas })
+      yield call(api.put, `/${id}`, { senhasSalvas: senhasSalvas, nome, email })
     ) as ApiResponse; // 👈 ajuste aqui!
 
     yield put(loadUserRequest(email));

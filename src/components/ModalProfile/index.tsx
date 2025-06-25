@@ -57,7 +57,7 @@ export default function ModalProfile() {
 
   const handleSave = () => {
     if (!user) return;
-    dispatch(updateUserRequest({ ...user, ...form }));
+    dispatch(updateUserRequest({nome: form.nome, email: form.email, id: user.id}));
     // A desativação do modo de edição acontecerá no useEffect quando o user for atualizado pelo Redux
     // setEditMode(false); // Pode ser removido daqui se a atualização do user no Redux for rápida e consistente
   };

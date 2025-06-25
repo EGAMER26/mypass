@@ -88,7 +88,7 @@ export const authOptions = {
 async function fetchUserFromDatabase(email) {
   try {
     const response = await fetch(
-      "https://67fffe04b72e9cfaf72687d9.mockapi.io/api/convidados/shopProfile"
+      "https://683f2e401cd60dca33de8bbb.mockapi.io/users"
     );
 
     if (!response.ok) {
@@ -96,7 +96,7 @@ async function fetchUserFromDatabase(email) {
     }
 
     const users = await response.json(); // ✅ pegar o JSON da resposta
-
+    console.log('users', users)
     const user = users.find((item) => item.email === email);
     // console.log('user--------------', user)
     return user;
