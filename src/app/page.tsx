@@ -26,6 +26,7 @@ export default function PasswordGenerator() {
   const [strength, setStrength] = useState(0);
   const [strengthText, setStrengthText] = useState("Média");
   const [copySuccess, setCopySuccess] = useState(false);
+  const [highContrastMode, setHighContrastMode] = useState(false);
   const [showPasswords, setShowPasswords] = useState<boolean | undefined>(
     false
   );
@@ -44,6 +45,15 @@ export default function PasswordGenerator() {
       );
   const { data: session } = useSession();
   const dispatch = useDispatch();
+  useEffect(() => {
+    generatePassword();
+    dispatch(loadUsersRequest())
+    const savedContrastMode = localStorage.getItem("high-contrast-mode");
+    if (savedContrastMode === "enabled") {
+      console.log('savedContrastMode', savedContrastMode)
+      setHighContrastMode(true);
+    }
+  }, []);
 
   useEffect(() => {
     setShowPasswords(passwordsOpen);
@@ -144,10 +154,7 @@ export default function PasswordGenerator() {
   };
 
   // Generate a password on component mount
-  useEffect(() => {
-    generatePassword();
-    dispatch(loadUsersRequest())
-  }, []);
+  
 
   useEffect(() => {
     if (strength < 40) {
@@ -178,21 +185,37 @@ export default function PasswordGenerator() {
       <ModalCadastro />
       <ModalProfile />
       <div
-        className={`min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 flex flex-col`}
+        className={`min-h-screen
+          bg-gray-100 dark:bg-gray-900
+          text-gray-900 dark:text-gray-100
+          transition-colors duration-300 flex flex-col
+          high-contrast:bg-highContrast-bg high-contrast:text-highContrast-text
+          `}
       >
         {/* Main content */}
         <main className="flex-grow container mx-auto mt-16 px-6 md:px-12 py-8 md:py-16">
           {/* Hero section */}
           <section className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100">
+            <h2 className="text-3xl md:text-4xl font-bold
+              text-gray-800 dark:text-gray-100
+              high-contrast:text-highContrast-text
+            ">
               Crie e Salve Senhas Fortes e Seguras em Segundos
             </h2>
           </section>
 
           {/* Password generator card */}
-          <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-12 transition-colors duration-300">
+          <div className="max-w-2xl mx-auto
+            bg-white dark:bg-gray-800
+            rounded-xl shadow-lg overflow-hidden mb-12
+            transition-colors duration-300
+            high-contrast:bg-highContrast-bg high-contrast:shadow-none high-contrast:border-2 high-contrast:border-highContrast-primary
+            ">
             <div className="p-6 md:p-8">
-              <h3 className="text-xl font-semibold mb-6 text-center text-gray-900 dark:text-gray-100">
+              <h3 className="text-xl font-semibold mb-6 text-center
+                text-gray-900 dark:text-gray-100
+                high-contrast:text-highContrast-text
+                ">
                 Gerador de Senhas
               </h3>
 
@@ -202,17 +225,31 @@ export default function PasswordGenerator() {
                   type="text"
                   value={password}
                   readOnly
-                  className="w-full py-3 px-4 bg-gray-100 dark:bg-gray-700 rounded-lg text-lg font-mono text-gray-900 dark:text-gray-100 transition-colors duration-300"
+                  className="w-full py-3 px-4
+                    bg-gray-100 dark:bg-gray-700
+                    rounded-lg text-lg font-mono
+                    text-gray-900 dark:text-gray-100
+                    transition-colors duration-300
+                    high-contrast:bg-highContrast-bg high-contrast:text-highContrast-text
+                    high-contrast:border-2 high-contrast:border-highContrast-primary high-contrast:outline-none
+                    "
                 />
                 <button
                   onClick={copyToClipboard}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-violet-500 hover:text-violet-600 dark:hover:text-violet-400 transition-colors duration-300"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2
+                    text-violet-500 hover:text-violet-600 dark:hover:text-violet-400
+                    transition-colors duration-300
+                    high-contrast:text-highContrast-primary high-contrast:hover:text-highContrast-text
+                    high-contrast:border high-contrast:border-highContrast-primary high-contrast:rounded-full high-contrast:p-1
+                    "
                   aria-label="Copiar senha"
                 >
                   {copySuccess ? (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 text-green-500"
+                      // Importante: Para SVGs, Tailwind aplica as classes de cor diretamente ao `stroke` ou `fill`
+                      // mas é bom ter uma classe explícita para alto contraste se a cor padrão for muito específica.
+                      className="h-6 w-6 text-green-500 high-contrast:text-highContrast-primary"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -227,7 +264,7 @@ export default function PasswordGenerator() {
                   ) : (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6"
+                      className="h-6 w-6 high-contrast:text-highContrast-primary"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -246,7 +283,10 @@ export default function PasswordGenerator() {
               {/* Password strength indicator */}
               <div className="mb-6">
                 <div className="flex justify-between mb-2">
-                  <span className="text-sm text-gray-600 dark:text-gray-300">
+                  <span className="text-sm
+                    text-gray-600 dark:text-gray-300
+                    high-contrast:text-highContrast-text
+                    ">
                     Força da senha:
                   </span>
                   <span
@@ -256,12 +296,18 @@ export default function PasswordGenerator() {
                         : strengthLevel === "medium"
                         ? "text-yellow-500"
                         : "text-green-500"
-                    }`}
+                    }
+                    high-contrast:text-highContrast-primary // Para garantir visibilidade no HC
+                    `}
                   >
                     {strengthText}
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5 transition-colors duration-300">
+                <div className="w-full
+                  bg-gray-200 dark:bg-gray-600
+                  rounded-full h-2.5 transition-colors duration-300
+                  high-contrast:bg-highContrast-text
+                  ">
                   <div
                     className={`h-2.5 rounded-full transition-all duration-300 ${
                       strengthLevel === "weak"
@@ -269,7 +315,9 @@ export default function PasswordGenerator() {
                         : strengthLevel === "medium"
                         ? "w-2/3 bg-yellow-500"
                         : "w-full bg-green-500"
-                    }`}
+                    }
+                    high-contrast:bg-highContrast-primary
+                    `}
                   ></div>
                 </div>
               </div>
@@ -277,7 +325,10 @@ export default function PasswordGenerator() {
               {/* Password options */}
               <div className="space-y-4 mb-6">
                 <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label className="block mb-2 text-sm font-medium
+                    text-gray-700 dark:text-gray-300
+                    high-contrast:text-highContrast-text
+                    ">
                     Comprimento da senha: {passwordLength} caracteres
                   </label>
                   <input
@@ -288,7 +339,11 @@ export default function PasswordGenerator() {
                     onChange={(e) =>
                       setPasswordLength(parseInt(e.target.value))
                     }
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600 accent-violet-500"
+                    className="w-full h-2
+                      bg-gray-200 rounded-lg appearance-none cursor-pointer
+                      dark:bg-gray-600 accent-violet-500
+                      high-contrast:bg-highContrast-text high-contrast:accent-highContrast-primary
+                      "
                   />
                 </div>
 
@@ -299,9 +354,16 @@ export default function PasswordGenerator() {
                       useUppercase
                         ? "border-violet-500 bg-violet-50 dark:bg-violet-600/20"
                         : "border-gray-300 dark:border-zinc-700"
-                    }`}
+                    }
+                    high-contrast:border-highContrast-primary high-contrast:text-highContrast-text
+                    ${useUppercase ? "high-contrast:bg-highContrast-primary high-contrast:text-highContrast-bg" : "high-contrast:bg-highContrast-bg"}
+                    high-contrast:shadow-none
+                    `}
                   >
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                    <p className={`text-sm font-medium
+                      ${highContrastMode ? "text-gray-800!" : "text-gray-600!"} dark:text-gray-200!
+                      high-contrast:text-highContrast-text
+                      `}>
                       Letras maiúsculas (A-Z)
                     </p>
                   </div>
@@ -312,9 +374,16 @@ export default function PasswordGenerator() {
                       useLowercase
                         ? "border-violet-500 bg-violet-50 dark:bg-violet-600/20"
                         : "border-gray-300 dark:border-zinc-700"
-                    }`}
+                    }
+                    high-contrast:border-highContrast-primary high-contrast:text-highContrast-text
+                    ${useLowercase ? "high-contrast:bg-highContrast-primary high-contrast:text-highContrast-bg" : "high-contrast:bg-highContrast-bg"}
+                    high-contrast:shadow-none
+                    `}
                   >
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                    <p className={`text-sm font-medium
+                      ${highContrastMode ? "text-gray-800!" : "text-gray-600!"} dark:text-gray-200!
+                      high-contrast:text-highContrast-text
+                      `}>
                       Letras minúsculas (a-z)
                     </p>
                   </div>
@@ -325,9 +394,16 @@ export default function PasswordGenerator() {
                       useNumbers
                         ? "border-violet-500 bg-violet-50 dark:bg-violet-600/20"
                         : "border-gray-300 dark:border-zinc-700"
-                    }`}
+                    }
+                    high-contrast:border-highContrast-primary high-contrast:text-highContrast-text
+                    ${useNumbers ? "high-contrast:bg-highContrast-primary high-contrast:text-highContrast-bg" : "high-contrast:bg-highContrast-bg"}
+                    high-contrast:shadow-none
+                    `}
                   >
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                    <p className={`text-sm font-medium
+                      ${highContrastMode ? "text-gray-800!" : "text-gray-600!"} dark:text-gray-200!
+                      high-contrast:text-highContrast-text
+                      `}>
                       Números (0-9)
                     </p>
                   </div>
@@ -338,9 +414,16 @@ export default function PasswordGenerator() {
                       useSymbols
                         ? "border-violet-500 bg-violet-50 dark:bg-violet-600/20"
                         : "border-gray-300 dark:border-zinc-700"
-                    }`}
+                    }
+                    high-contrast:border-highContrast-primary high-contrast:text-highContrast-text
+                    ${useSymbols ? "high-contrast:bg-highContrast-primary high-contrast:text-highContrast-bg" : "high-contrast:bg-highContrast-bg"}
+                    high-contrast:shadow-none
+                    `}
                   >
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                    <p className={`text-sm font-medium
+                      ${highContrastMode ? "text-gray-800!" : "text-gray-600!"} dark:text-gray-200!
+                      high-contrast:text-highContrast-text
+                      `}>
                       Símbolos (!@#$%)
                     </p>
                   </div>
@@ -350,7 +433,13 @@ export default function PasswordGenerator() {
               {/* Generate button */}
               <button
                 onClick={generatePassword}
-                className="w-full py-3 px-6 bg-violet-500 hover:bg-violet-600 text-white font-medium rounded-lg transition-colors duration-300"
+                className="w-full py-3 px-6
+                  bg-violet-500 hover:bg-violet-600
+                  text-white font-medium rounded-lg transition-colors duration-300
+                  high-contrast:bg-highContrast-primary high-contrast:text-highContrast-bg
+                  high-contrast:border-2 high-contrast:border-highContrast-primary
+                  high-contrast:hover:bg-highContrast-text high-contrast:hover:text-highContrast-bg
+                  "
               >
                 Gerar Senha Segura
               </button>
@@ -360,7 +449,13 @@ export default function PasswordGenerator() {
                     ? () => setShowAddPasswords(true)
                     : () => dispatch(updateModals({ login: true }))
                 }
-                className="w-full mt-2 py-3 px-6 bg-violet-700 hover:bg-violet-600 text-white font-medium rounded-lg transition-colors duration-300"
+                className="w-full mt-2 py-3 px-6
+                  bg-violet-700 hover:bg-violet-600
+                  text-white font-medium rounded-lg transition-colors duration-300
+                  high-contrast:bg-highContrast-bg high-contrast:text-highContrast-primary
+                  high-contrast:border-2 high-contrast:border-highContrast-primary
+                  high-contrast:hover:bg-highContrast-primary high-contrast:hover:text-highContrast-bg
+                  "
               >
                 Salvar Senha
               </button>
@@ -369,13 +464,20 @@ export default function PasswordGenerator() {
 
           {/* Features section */}
           <section className="max-w-4xl mx-auto mb-12">
-            <h3 className="text-2xl font-bold mb-8 text-center text-gray-900 dark:text-gray-100">
+            <h3 className="text-2xl font-bold mb-8 text-center
+              text-gray-900 dark:text-gray-100
+              high-contrast:text-highContrast-text
+              ">
               Por que usar senhas seguras?
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-300">
-                <div className="text-violet-500 mb-4">
+              <div className="
+                bg-white dark:bg-gray-800
+                p-6 rounded-lg shadow-md transition-colors duration-300
+                high-contrast:bg-highContrast-bg high-contrast:shadow-none high-contrast:border-2 high-contrast:border-highContrast-border
+                ">
+                <div className="text-violet-500 mb-4 high-contrast:text-highContrast-primary">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-10 w-10"
@@ -391,17 +493,24 @@ export default function PasswordGenerator() {
                     />
                   </svg>
                 </div>
-                <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">
+                <h4 className="text-lg font-semibold mb-2
+                  text-gray-900 dark:text-gray-100
+                  high-contrast:text-highContrast-text
+                  ">
                   Proteção Avançada
                 </h4>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-gray-600 dark:text-gray-300 high-contrast:text-highContrast-text">
                   Senhas complexas são muito mais difíceis de serem quebradas
                   por hackers e programas maliciosos.
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-300">
-                <div className="text-violet-500 mb-4">
+              <div className="
+                bg-white dark:bg-gray-800
+                p-6 rounded-lg shadow-md transition-colors duration-300
+                high-contrast:bg-highContrast-bg high-contrast:shadow-none high-contrast:border-2 high-contrast:border-highContrast-border
+                ">
+                <div className="text-violet-500 mb-4 high-contrast:text-highContrast-primary">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-10 w-10"
@@ -417,17 +526,24 @@ export default function PasswordGenerator() {
                     />
                   </svg>
                 </div>
-                <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">
+                <h4 className="text-lg font-semibold mb-2
+                  text-gray-900 dark:text-gray-100
+                  high-contrast:text-highContrast-text
+                  ">
                   Senhas Únicas
                 </h4>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-gray-600 dark:text-gray-300 high-contrast:text-highContrast-text">
                   Evite usar a mesma senha em vários sites. Nossa ferramenta
                   gera senhas únicas para cada serviço.
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-300">
-                <div className="text-violet-500 mb-4">
+              <div className="
+                bg-white dark:bg-gray-800
+                p-6 rounded-lg shadow-md transition-colors duration-300
+                high-contrast:bg-highContrast-bg high-contrast:shadow-none high-contrast:border-2 high-contrast:border-highContrast-border
+                ">
+                <div className="text-violet-500 mb-4 high-contrast:text-highContrast-primary">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-10 w-10"
@@ -443,10 +559,13 @@ export default function PasswordGenerator() {
                     />
                   </svg>
                 </div>
-                <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">
+                <h4 className="text-lg font-semibold mb-2
+                  text-gray-900 dark:text-gray-100
+                  high-contrast:text-highContrast-text
+                  ">
                   Rápido e Fácil
                 </h4>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-gray-600 dark:text-gray-300 high-contrast:text-highContrast-text">
                   Crie senhas fortes em segundos, sem precisar pensar em
                   combinações complexas por conta própria.
                 </p>
@@ -455,16 +574,26 @@ export default function PasswordGenerator() {
           </section>
 
           {/* Tips section */}
-          <section className="max-w-4xl mx-auto mb-12 bg-violet-50 dark:bg-gray-800/50 rounded-xl p-6 md:p-8 transition-colors duration-300">
-            <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
+          <section className="max-w-4xl mx-auto mb-12
+            bg-violet-50 dark:bg-gray-800/50 shadow-lg
+            rounded-xl p-6 md:p-8 transition-colors duration-300
+            high-contrast:bg-highContrast-bg high-contrast:shadow-none high-contrast:border-2 high-contrast:border-highContrast-border
+            ">
+            <h3 className="text-xl font-semibold mb-4
+              text-gray-900! dark:text-gray-100!
+              high-contrast:text-highContrast-text
+              ">
               Dicas para manter suas senhas seguras
             </h3>
 
-            <ul className="space-y-3 text-gray-700 dark:text-gray-300">
+            <ul className="space-y-3
+              text-gray-700 dark:text-gray-300
+              high-contrast:text-highContrast-text
+              ">
               <li className="flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-violet-500 mr-2 mt-0.5"
+                  className="h-5 w-5 text-violet-500 mr-2 mt-0.5 high-contrast:text-highContrast-primary"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -476,7 +605,8 @@ export default function PasswordGenerator() {
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                <span>
+                <span className="text-gray-600! hover:text-violet-500
+                    dark:text-gray-200! dark:hover:text-violet-400">
                   Use um gerenciador de senhas para armazenar suas senhas com
                   segurança.
                 </span>
@@ -484,7 +614,7 @@ export default function PasswordGenerator() {
               <li className="flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-violet-500 mr-2 mt-0.5"
+                  className="h-5 w-5 text-violet-500 mr-2 mt-0.5 high-contrast:text-highContrast-primary"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -496,14 +626,15 @@ export default function PasswordGenerator() {
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                <span>
+                <span className="text-gray-600! hover:text-violet-500
+                    dark:text-gray-200! dark:hover:text-violet-400">
                   Ative a autenticação de dois fatores sempre que possível.
                 </span>
               </li>
               <li className="flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-violet-500 mr-2 mt-0.5"
+                  className="h-5 w-5 text-violet-500 mr-2 mt-0.5 high-contrast:text-highContrast-primary"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -515,14 +646,15 @@ export default function PasswordGenerator() {
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                <span>
+                <span className="text-gray-600! hover:text-violet-500
+                    dark:text-gray-200! dark:hover:text-violet-400">
                   Troque suas senhas regularmente, pelo menos a cada 3-6 meses.
                 </span>
               </li>
               <li className="flex items-start">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-violet-500 mr-2 mt-0.5"
+                  className="h-5 w-5 text-violet-500 mr-2 mt-0.5 high-contrast:text-highContrast-primary"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -534,7 +666,8 @@ export default function PasswordGenerator() {
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                <span>
+                <span className="text-gray-600! hover:text-violet-500
+                    dark:text-gray-200! dark:hover:text-violet-400">
                   Nunca compartilhe suas senhas com outras pessoas, mesmo que
                   sejam de confiança.
                 </span>
@@ -544,11 +677,18 @@ export default function PasswordGenerator() {
         </main>
 
         {/* Footer */}
-        <footer className="py-6 px-6 md:px-12 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
+        <footer className="py-6 px-6 md:px-12
+          border-t border-gray-200 dark:border-gray-700
+          transition-colors duration-300
+          high-contrast:border-highContrast-border
+          ">
           <div className="container mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="mb-4 md:mb-0">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm
+                  text-gray-600 dark:text-gray-400
+                  high-contrast:text-highContrast-text
+                  ">
                   &copy; {new Date().getFullYear()} SecurePass. Todos os
                   direitos reservados.
                 </p>
@@ -556,21 +696,25 @@ export default function PasswordGenerator() {
               <div className="flex space-x-6">
                 <a
                   href="/politicaprivacidade"
-                  className="text-sm text-gray-600 hover:text-violet-500 dark:text-gray-400 dark:hover:text-violet-400 transition-colors duration-300"
+                  className="text-sm
+                    text-gray-600 hover:text-violet-500
+                    dark:text-gray-400 dark:hover:text-violet-400
+                    transition-colors duration-300
+                    high-contrast:text-highContrast-text high-contrast:hover:text-highContrast-primary
+                    "
                 >
                   Política de Privacidade
                 </a>
                 <a
                   href="/termoServico"
-                  className="text-sm text-gray-600 hover:text-violet-500 dark:text-gray-400 dark:hover:text-violet-400 transition-colors duration-300"
+                  className="text-sm
+                    text-gray-600 hover:text-violet-500
+                    dark:text-gray-400 dark:hover:text-violet-400
+                    transition-colors duration-300
+                    high-contrast:text-highContrast-text high-contrast:hover:text-highContrast-primary
+                    "
                 >
                   Termos de Uso
-                </a>
-                <a
-                  href="#"
-                  className="text-sm text-gray-600 hover:text-violet-500 dark:text-gray-400 dark:hover:text-violet-400 transition-colors duration-300"
-                >
-                  Contato
                 </a>
               </div>
             </div>

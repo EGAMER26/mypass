@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { X, User, Mail, Calendar, Key, Edit, Save, XCircle } from 'lucide-react'; // Importações de ícones Lucide
+import { X, User, Mail, Calendar, Key, Edit, Save, XCircle, LoaderPinwheel } from 'lucide-react'; // Importações de ícones Lucide
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { ApplicationState } from '@/store';
@@ -34,6 +34,7 @@ export default function ModalProfile() {
   const show = useSelector((state: ApplicationState) => state.Modals.data.profile);
 
   const [editMode, setEditMode] = useState(false);
+    const [loading, setloading] = useState(false);
   const [form, setForm] = useState({
     nome: user?.nome || '',
     email: user?.email || '',
@@ -57,7 +58,11 @@ export default function ModalProfile() {
 
   const handleSave = () => {
     if (!user) return;
-    dispatch(updateUserRequest({nome: form.nome, email: form.email, id: user.id}));
+    setloading(true);
+    setTimeout(() => {
+      dispatch(updateUserRequest({nome: form.nome, email: form.email, id: user.id}));
+      setloading(false);
+    }, 1000); // Simula um delay de 1 segundo para a atualização
     // A desativação do modo de edição acontecerá no useEffect quando o user for atualizado pelo Redux
     // setEditMode(false); // Pode ser removido daqui se a atualização do user no Redux for rápida e consistente
   };
@@ -210,13 +215,14 @@ export default function ModalProfile() {
                     onClick={handleCancelEdit}
                     className="px-4 py-2 rounded-lg bg-gray-300 dark:bg-zinc-600 text-gray-800 dark:text-white hover:bg-gray-400 dark:hover:bg-zinc-500 transition flex items-center gap-2"
                   >
-                    <XCircle size={16} /> Cancelar
+                    <XCircle size={20} /> Cancelar
                   </button>
                   <button
                     onClick={handleSave}
                     className="px-4 py-2 rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition flex items-center gap-2"
                   >
-                    <Save size={16} /> Salvar
+                {loading ? <LoaderPinwheel size={20} className="animate-spin"/> : <Save size={20} />}
+                    
                   </button>
                 </>
               ) : (

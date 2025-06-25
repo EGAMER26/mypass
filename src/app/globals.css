@@ -7,6 +7,83 @@
   --foreground: #171717;
   --font-size-base: 1rem; /* Tamanho padrão */
 }
+
+/* --- */
+
+/* Modo Alto Contraste */
+/* Define as variáveis CSS para o modo de alto contraste quando a classe 'high-contrast-mode' está ativa */
+.high-contrast-mode {
+  /* Fundo e texto base (alto contraste) */
+  --background: #000000;   /* Fundo preto puro */
+  --foreground: #FFFFFF; /* Texto branco puro */
+
+  /* Você também pode definir outras variáveis específicas para alto contraste se precisar de cores de destaque */
+  --color-high-contrast-primary: #FFFF00; /* Amarelo vibrante para destaque/interatividade */
+  --color-high-contrast-border: #00FFFF; /* Ciano para bordas ou elementos de separação */
+
+  /* Para garantir alto contraste em elementos específicos que podem não ser totalmente controlados pelo Tailwind */
+  box-shadow: none !important; /* Remover sombras para maior clareza */
+
+  /* Garantir bordas visíveis em inputs, botões, etc. */
+  input,
+  button,
+  select,
+  textarea {
+    border-width: 2px !important;
+    border-style: solid !important;
+    border-color: var(--color-high-contrast-primary) !important;
+    outline: 2px solid var(--color-high-contrast-primary) !important; /* Melhorar o foco */
+    outline-offset: 2px !important;
+  }
+
+  /* Links */
+  a {
+    color: var(--color-high-contrast-primary) !important;
+    text-decoration: underline !important; /* Sublinhar links é importante para acessibilidade */
+  }
+
+  /*
+    Seletor para sobrescrever classes do Tailwind se necessário,
+    se você tiver casos onde as cores padrão do Tailwind precisam ser
+    forçadas para as cores de alto contraste.
+    Ex: Se um elemento usa 'bg-white', force-o a usar o fundo de alto contraste.
+  */
+  .bg-white {
+    background-color: var(--background) !important;
+  }
+  .text-gray-900 { /* Ou a cor que seu texto primário usa no modo light */
+    color: var(--foreground) !important;
+  }
+  .bg-gray-100 { /* Ajuste para fundos mais claros */
+    background-color: var(--background) !important;
+  }
+  .text-gray-700, .text-gray-600, .text-gray-500 { /* Ajuste para textos mais escuros */
+    color: var(--foreground) !important;
+  }
+  /* Adicione mais regras 'high-contrast' conforme a necessidade para elementos específicos */
+  /* Por exemplo, para suas classes 'dark:bg-zinc-200/10' ou 'dark:bg-zinc-900' */
+  .dark\:bg-zinc-200\/10, .dark\:bg-zinc-900 {
+      background-color: var(--background) !important;
+  }
+  .dark\:text-gray-200, .dark\:text-gray-300, .dark\:text-gray-400 {
+      color: var(--foreground) !important;
+  }
+  /* Para as suas cores da violeta: */
+  .text-violet-400, .text-violet-500 {
+      color: var(--color-high-contrast-primary) !important;
+  }
+  .bg-violet-500 {
+      background-color: var(--color-high-contrast-primary) !important;
+      color: var(--background) !important; /* Texto preto no botão amarelo */
+  }
+  .hover\:bg-violet-600:hover {
+      background-color: var(--color-high-contrast-primary) !important;
+  }
+
+}
+
+/* --- */
+
 .scrollbar-hidden {
   /* Para Webkit (Chrome, Safari) */
   &::-webkit-scrollbar {
@@ -51,7 +128,6 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  
 }
 
 html {

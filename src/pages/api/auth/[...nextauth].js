@@ -20,7 +20,6 @@ export const authOptions = {
         const user = await fetchUserFromDatabase(email);
 
         if (!user) {
-          console('não foi dessa vez')
           return null; // Usuário não encontrado
         }
 

@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import React, { useEffect, useState } from "react";
+import {  useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { LoaderPinwheel, X } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { useDispatch, useSelector } from "react-redux";
 import { ApplicationState } from "@/store";
 import { updateModals } from "@/store/modules/Modals/actions";
+import { toast } from "react-toastify";
 
 type FormData = {
   email: string;
@@ -20,6 +21,7 @@ export default function ModalLogin() {
     (state: ApplicationState) => state?.Modals.data.login
   );
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     console.log("loginOpen", loginOpen);
@@ -31,12 +33,21 @@ export default function ModalLogin() {
   } = useForm<FormData>();
 
   const onSubmit = async (data: FormData) => {
-    await signIn("credentials", {
-      redirect: true,
+    setLoading(true);
+    const result = await signIn("credentials", {
+      redirect: false,
       email: data.email,
       password: data.password,
-      callbackUrl: "/",
+  
     });
+    setLoading(false);
+    if (result?.error) {
+      toast.error("E-mail ou senha inválida"); // Exibe a mensagem de erro retornada pelo authorize
+    }
+    if (result?.ok) {
+      toast.success("Login realizado com sucesso!");
+      dispatch(updateModals({ login: false }));
+    }
   };
 
   return (
@@ -113,9 +124,11 @@ export default function ModalLogin() {
 
               <button
                 type="submit"
-                className="w-full cursor-pointer bg-violet-500 hover:bg-violet-600 text-white font-semibold py-2 px-4 rounded-lg transition"
+                className="w-full flex justify-center items-center min-h-10 cursor-pointer bg-violet-500 hover:bg-violet-600 text-white font-semibold py-2 px-4 rounded-lg transition"
               >
-                Entrar
+                {loading ? <LoaderPinwheel size={20} className="animate-spin"/> : 'Entrar'}
+
+                
               </button>
 
               <div className="relative flex items-center my-4">
