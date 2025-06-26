@@ -41,7 +41,6 @@ export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, account, user }) {
-      console.log('user----', user)
       if (account) {
         token.accessToken = account.access_token;
       }
@@ -95,9 +94,7 @@ async function fetchUserFromDatabase(email) {
     }
 
     const users = await response.json(); // ✅ pegar o JSON da resposta
-    console.log('users', users)
     const user = users.find((item) => item.email === email);
-    // console.log('user--------------', user)
     return user;
   } catch (error) {
     console.error("Erro ao buscar convidados:", error);

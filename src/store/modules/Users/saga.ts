@@ -18,10 +18,8 @@
   }
 
   function* getUsers(): Generator<Effect, void, unknown> {
-    console.log("entro");
     try {
       const response = (yield call(api.get, "")) as ApiResponse; // 👈 ajuste aqui!
-      console.log("response", response);
       yield put(loadSucces(response.data));
       
     } catch (error: unknown) {
@@ -37,7 +35,6 @@
 
   function* postUsers(action: ActionType<typeof postUsersRequest>) {
     const { nome, email, senha, profilePic, typeAuth } = action.payload;
-  console.log('nome, email', nome, email)
     try {
       const hashResponse: Response = yield call(fetch, '/api/hash-password', {
         method: 'POST',
@@ -49,7 +46,6 @@
       // 1. Envia a senha para a Vercel Function para ser hasheada
   
       const { hashedPassword } = yield call([hashResponse, 'json']);
-      console.log('hashedPassword', hashedPassword)
   
       // 2. Envia os outros dados do usuário junto com a senha hasheada para sua API de registro (se houver)
       const registerResponse = (yield call(api.post,"", { // Adapte a rota da sua API de registro

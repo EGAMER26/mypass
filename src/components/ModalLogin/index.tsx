@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {  useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,9 +23,6 @@ export default function ModalLogin() {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    console.log("loginOpen", loginOpen);
-  }, [loginOpen]);
   const {
     register,
     handleSubmit,

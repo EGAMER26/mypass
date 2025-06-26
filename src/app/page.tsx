@@ -50,7 +50,6 @@ export default function PasswordGenerator() {
     dispatch(loadUsersRequest())
     const savedContrastMode = localStorage.getItem("high-contrast-mode");
     if (savedContrastMode === "enabled") {
-      console.log('savedContrastMode', savedContrastMode)
       setHighContrastMode(true);
     }
   }, []);
@@ -68,16 +67,11 @@ export default function PasswordGenerator() {
       );
     if (cadastrado) return
     if (cadastrado === undefined) {
-      console.log('entroooooooo0----------')
       // if(session?.tipeAuth) dispatch(postUsersRequest({email: session?.user?.email, nome: session?.user?.name, profilePic: session?.user?.image, typeAuth: "google"}));
       dispatch(postUsersRequest({email: session?.user?.email, nome: session?.user?.name, profilePic: session?.user?.image, typeAuth: "google"}));
     }
   }
   }, [session, users]);
-
-  useEffect(() => {
-    console.log('session', session)
-  },[session])
 
   useEffect(() => {
     if (showPasswords || showAddPasswords || loginOpen || cadastroOpen) {
@@ -167,9 +161,6 @@ export default function PasswordGenerator() {
       setStrengthLevel("strong");
       setStrengthText("Forte");
     }
-    console.log("strengthLevel", strengthLevel);
-    console.log("passwordLength", passwordLength);
-    console.log("strength", strength);
   }, [strengthLevel, passwordLength, strength]);
 
   return (

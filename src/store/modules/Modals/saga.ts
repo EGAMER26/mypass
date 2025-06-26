@@ -7,7 +7,6 @@ import { UserTypes } from './types';
 
 function* setSideBar(action: ActionType<typeof updateModals>): Generator<Effect, void, unknown> {
     const {perfil, passwords, login, cadastro, profile} = action.payload;
-console.log('profile', profile)
     yield put(loadSucces({passwords, perfil, login, cadastro, profile}));
 
 }
