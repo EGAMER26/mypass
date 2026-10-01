@@ -86,7 +86,7 @@ const PoliticaPrivacidadeMyPass = () => {
               <li><b>Cookies:</b> são pequenos arquivos colocados no seu dispositivo por um site, contendo detalhes do seu histórico de navegação.</li>
               <li><b>País:</b> refere-se ao Brasil.</li>
               <li><b>Dispositivo:</b> significa qualquer dispositivo que possa acessar o Serviço, como um computador, celular ou tablet digital.</li>
-              <li><b>Dados Pessoais:</b> são quaisquer informações relacionadas a uma pessoa identificada ou identificável, como e-mail, nome, e dados de conta. **Importante: Suas senhas geradas e salvas no MyPass são criptografadas e tratadas com o mais alto nível de segurança. Elas não são acessíveis por nós em sua forma original.**</li>
+              <li><b>Dados Pessoais:</b> são quaisquer informações relacionadas a uma pessoa identificada ou identificável, como e-mail, nome, e dados de conta. **Importante: Suas senhas geradas e salvas no MyPass são criptografadas antes do armazenamento e protegidas por controles de acesso. Para permitir a recuperação no serviço, o backend autorizado pode descriptografá-las durante uma operação autenticada.**</li>
               <li><b>Serviço:</b> refere-se à plataforma MyPass, que inclui o gerador de senhas e o gerenciador de senhas.</li>
               <li><b>Provedor de Serviço:</b> significa qualquer pessoa física ou jurídica que processe os dados em nome da Empresa.</li>
               <li><b>Serviço de Mídia Social de Terceiros:</b> refere-se a qualquer site ou rede social por meio da qual um usuário possa fazer login ou criar uma conta para usar o Serviço (ex: Google).</li>
@@ -134,7 +134,7 @@ const PoliticaPrivacidadeMyPass = () => {
               <li>Endereço de e-mail</li>
               <li>Nome e sobrenome (se fornecidos)</li>
               <li>Dados de Uso</li>
-              <li>**Informações de Senhas Salvas:** Senhas que você opta por salvar em nosso gerenciador são armazenadas de forma **criptografada e segura**. O MyPass não tem acesso às suas senhas em texto puro.</li>
+              <li>**Informações de Senhas Salvas:** Senhas que você opta por salvar em nosso gerenciador são armazenadas de forma **criptografada**. O conteúdo não é retornado sem uma sessão autenticada e autorização do proprietário da conta.</li>
             </ul>
 
             <h4 className="
@@ -398,7 +398,7 @@ const PoliticaPrivacidadeMyPass = () => {
               dark:text-gray-300
               high-contrast:text-highContrast-text
             ">
-              **As senhas que você salva no MyPass são criptografadas antes do armazenamento, o que significa que nem mesmo o MyPass pode acessá-las em sua forma original. A segurança das suas senhas depende significativamente da segurança da sua senha mestre ou das credenciais da sua conta no MyPass.**
+              **As senhas que você salva no MyPass são criptografadas antes do armazenamento. A segurança delas depende significativamente da segurança da sua senha e das credenciais da sua conta no MyPass.**
             </p>
           </section>
 

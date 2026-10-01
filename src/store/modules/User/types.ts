@@ -9,14 +9,14 @@ export enum UserTypes {
 
 // Data types
   export interface ISenhas {
-    id: number;
+    id: string;
     nome?: string;
     senha?: string;
     createdAt?: string;
   }
 
   export interface IUser {
-    id?: number;
+    id?: string;
     nome?: string | null;
     email?: string | null;
     senha?: string;

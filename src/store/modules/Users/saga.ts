@@ -9,18 +9,12 @@
   import {api} from "@/services/api";
   import { loadSucces, loadFailure, postUsersRequest, loadUsersRequest } from "./actions";
   import { UserTypes } from "./types";
-  import { IUser } from "../User/types";
   import { ActionType } from "typesafe-actions";
 
 
-  interface ApiResponse {
-    data: IUser[];
-  }
-
   function* getUsers(): Generator<Effect, void, unknown> {
     try {
-      const response = (yield call(api.get, "")) as ApiResponse; // 👈 ajuste aqui!
-      yield put(loadSucces(response.data));
+      yield put(loadSucces([]));
       
     } catch (error: unknown) {
       yield put(loadFailure());
@@ -33,36 +27,12 @@
   }
 
 
-  function* postUsers(action: ActionType<typeof postUsersRequest>) {
-    const { nome, email, senha, profilePic, typeAuth } = action.payload;
+  function* postUsers(action: ActionType<typeof postUsersRequest>): Generator<Effect, void, unknown> {
     try {
-      const hashResponse: Response = yield call(fetch, '/api/hash-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password: senha }),
-      });
-      // 1. Envia a senha para a Vercel Function para ser hasheada
-  
-      const { hashedPassword } = yield call([hashResponse, 'json']);
-  
-      // 2. Envia os outros dados do usuário junto com a senha hasheada para sua API de registro (se houver)
-      const registerResponse = (yield call(api.post,"", { // Adapte a rota da sua API de registro
-        nome,
-        email,
-        senha: hashedPassword, // Envia a senha hasheada
-        profilePic,
-        typeAuth,
-        createdAt: new Date().toISOString(), // Adiciona a data de criação
-      })) as ApiResponse;
+      yield call(api.post, "/account", { name: action.payload.nome, email: action.payload.email, password: action.payload.senha });
       yield put(loadUsersRequest());
-      
-      console.log("Registration response", registerResponse);
-  
-    } catch (error) {
+    } catch {
       yield put(loadFailure());
-      console.error(error);
     }
   }
   

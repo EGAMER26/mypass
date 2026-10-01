@@ -2,6 +2,8 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt"; // Certifique-se de ter instalado esta biblioteca
+import { db } from "@/server/db";
+import { emailSchema } from "@/server/validation";
 
 export const authOptions = {
   providers: [
@@ -13,95 +15,68 @@ export const authOptions = {
       // A label para o formulário de login
       name: "Email e Senha",
       async authorize(credentials) {
-        const { email, password } = credentials;
+        if (!credentials?.email || !credentials?.password) return null;
+        const parsedEmail = emailSchema.safeParse(credentials.email);
+        if (!parsedEmail.success) return null;
+        const email = parsedEmail.data;
+        const password = String(credentials.password);
+        const user = await db.user.findUnique({ where: { email } });
 
-        // 1. Buscar o usuário no seu banco de dados pelo email
-        // Aqui você precisará integrar com o seu sistema de banco de dados
-        const user = await fetchUserFromDatabase(email);
+        if (!user?.passwordHash) return null;
 
-        if (!user) {
-          return null; // Usuário não encontrado
-        }
-
-        // 2. Comparar a senha fornecida com o hash armazenado
-        const passwordMatch = await bcrypt.compare(
-          password,
-          user.senha
-        );
+        const passwordMatch = await bcrypt.compare(password, user.passwordHash);
 
         if (passwordMatch) {
-          // 3. Retornar o objeto do usuário se a senha corresponder
-          return { id: user.id, email: user.email, name: user.nome, tipeAuth: "trad" }; // Adapte os campos do seu usuário
+          return { id: user.id, email: user.email, name: user.name, tipeAuth: "trad" };
         } else {
-          return null; // Senha incorreta
+          return null;
         }
       },
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
+  session: { strategy: "jwt", maxAge: 8 * 60 * 60 },
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === "production" ? "__Secure-next-auth.session-token" : "next-auth.session-token",
+      options: { httpOnly: true, sameSite: "lax", path: "/", secure: process.env.NODE_ENV === "production" },
+    },
+  },
   callbacks: {
     async jwt({ token, account, user }) {
-      if (account) {
-        token.accessToken = account.access_token;
-      }
       if (user) {
-        token.userId = user.id; // Adiciona o ID do usuário ao token
+        const localUser = user.email ? await db.user.findUnique({ where: { email: user.email.toLowerCase() }, select: { id: true } }) : null;
+        token.userId = localUser?.id ?? user.id;
         token.name = user.name;
         token.email = user.email;
-        token.tipeAuth = user.tipeAuth; // Adiciona o tipo de autenticação ao token
-      
+        token.tipeAuth = user.tipeAuth ?? (account?.provider === "google" ? "google" : "trad");
       }
       return token;
     },
     async session({ session, token }) {
-      if(token.tipeAuth === "trad") {
-        session.user = {
-          id: token.userId, // Disponibiliza o ID do usuário na sessão
-          name: token.name,
-          email: token.email,
-        }
-        session.accessToken = token.accessToken;
+      session.user = {
+        id: String(token.userId),
+        name: token.name,
+        email: token.email,
+        image: session.user?.image,
+      };
+      session.userId = String(token.userId);
       return session;
-    }
-    return {
-      ...session,
-      accessToken: token.accessToken,
-      userId: token.userId, // Disponibiliza o ID do usuário na sessão
-      expires: session.expires,
-    };
     },
-    async redirect({ url, baseUrl }) {
-      if (url === "http://localhost:3000/presentes") {
-        return url.startsWith(baseUrl) ? url : baseUrl;
+    async signIn({ user, account }) {
+      if (account?.provider === "google" && user.email) {
+        await db.user.upsert({
+          where: { email: user.email.toLowerCase() },
+          update: { name: user.name, image: user.image, provider: "google" },
+          create: { email: user.email.toLowerCase(), name: user.name, image: user.image, provider: "google" },
+        });
       }
-      return `${baseUrl}`;
+      return true;
     },
   },
   pages: {
     signIn: "/", // Página personalizada de login
   },
 };
-
-// Função de exemplo para buscar o usuário no banco de dados
-async function fetchUserFromDatabase(email) {
-  try {
-    const response = await fetch(
-      "https://683f2e401cd60dca33de8bbb.mockapi.io/users"
-    );
-
-    if (!response.ok) {
-      throw new Error("Erro ao buscar convidados");
-    }
-
-    const users = await response.json(); // ✅ pegar o JSON da resposta
-    const user = users.find((item) => item.email === email);
-    return user;
-  } catch (error) {
-    console.error("Erro ao buscar convidados:", error);
-    return null;
-  }
-
-
-}
 
 export default NextAuth(authOptions);

@@ -10,8 +10,6 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ModalCadastro from "@/components/ModalCadastro";
 import VLibras from "vlibras-nextjs";
-import { IUser } from "@/store/modules/User/types";
-import { loadUsersRequest, postUsersRequest } from "@/store/modules/Users/actions";
 import { loadUserRequest } from "@/store/modules/User/actions";
 import ModalProfile from "@/components/ModalProfile";
 
@@ -34,9 +32,6 @@ export default function PasswordGenerator() {
   const passwordsOpen = useSelector(
     (state: ApplicationState) => state?.Modals.data.passwords
   );
-  const users = useSelector(
-    (state: ApplicationState) => state?.Users.data
-  );
   const loginOpen = useSelector(
       (state: ApplicationState) => state?.Modals.data.login
     );
@@ -47,7 +42,6 @@ export default function PasswordGenerator() {
   const dispatch = useDispatch();
   useEffect(() => {
     generatePassword();
-    dispatch(loadUsersRequest())
     const savedContrastMode = localStorage.getItem("high-contrast-mode");
     if (savedContrastMode === "enabled") {
       setHighContrastMode(true);
@@ -61,17 +55,7 @@ export default function PasswordGenerator() {
   useEffect(() => {
     if(!session) return
     dispatch(loadUserRequest(session?.user?.email));
-    if (users.length > 0) {
-      const cadastrado = users.find(
-        (item: IUser) => item.email === session?.user?.email
-      );
-    if (cadastrado) return
-    if (cadastrado === undefined) {
-      // if(session?.tipeAuth) dispatch(postUsersRequest({email: session?.user?.email, nome: session?.user?.name, profilePic: session?.user?.image, typeAuth: "google"}));
-      dispatch(postUsersRequest({email: session?.user?.email, nome: session?.user?.name, profilePic: session?.user?.image, typeAuth: "google"}));
-    }
-  }
-  }, [session, users]);
+  }, [session]);
 
   useEffect(() => {
     if (showPasswords || showAddPasswords || loginOpen || cadastroOpen) {
@@ -102,7 +86,7 @@ export default function PasswordGenerator() {
 
     let newPassword = "";
     for (let i = 0; i < passwordLength; i++) {
-      const randomIndex = Math.floor(Math.random() * charset.length);
+      const randomIndex = crypto.getRandomValues(new Uint32Array(1))[0] % charset.length;
       newPassword += charset[randomIndex];
     }
 
