@@ -25,13 +25,8 @@ function* getUser(
 ): Generator<Effect, void, unknown> {
   try {
     const email = action.payload;
-    const response = (yield call(api.get, "")) as ApiResponse; // 👈 ajuste aqui!
-    const user = response.data.find((user) => user?.email === email);
-    if (!user) {
-      console.log("User not found");
-      return;
-    }
-    yield put(loadSucces(user));
+    const response = (yield call(api.get, "/vault")) as { data: Array<{ id: string; name: string; password: string; createdAt?: string }> };
+    yield put(loadSucces({ email, senhasSalvas: response.data.map((item) => ({ id: item.id, nome: item.name, senha: item.password, createdAt: item.createdAt })) }));
   } catch (error: unknown) {
     yield put(loadFailure());
     if (error instanceof Error) {
@@ -45,11 +40,15 @@ function* getUser(
 function* updateUser(
   action: ActionType<typeof updateUserRequest>
 ): Generator<Effect, void, unknown> {
-  const { email, senhasSalvas, nome,  id } = action.payload;
-  console.log('senhasSalvas', id, senhasSalvas)
+  const { email, senhasSalvas, nome } = action.payload;
   try {
+    if (!senhasSalvas) {
+      yield call(api.patch, "/profile", { name: nome, email });
+      yield put(loadUserRequest(email));
+      return;
+    }
     (
-      yield call(api.put, `/${id}`, { senhasSalvas: senhasSalvas, nome, email })
+      yield call(api.put, "/vault", { items: (senhasSalvas ?? []).map((item) => ({ name: item.nome ?? "Senha", password: item.senha ?? "" })) })
     ) as ApiResponse; // 👈 ajuste aqui!
 
     yield put(loadUserRequest(email));

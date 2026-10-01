@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate deploy",
+    "migrate:mockapi": "tsx scripts/migrate-mockapi.ts"
   },
   "dependencies": {
     "@geist-ui/icons": "^1.0.2",
@@ -16,6 +21,7 @@
     "@tailwindcss/postcss": "^4.1.8",
     "@vercel/node": "^5.2.1",
     "axios": "^1.9.0",
+    "@prisma/client": "^6.16.0",
     "bcrypt": "^6.0.0",
     "framer-motion": "^12.15.0",
     "lucide-react": "^0.511.0",
@@ -30,7 +36,8 @@
     "redux": "^5.0.1",
     "redux-saga": "^1.3.0",
     "typesafe-actions": "^5.1.0",
-    "vlibras-nextjs": "^1.1.2"
+    "vlibras-nextjs": "^1.1.2",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -43,6 +50,8 @@
     "eslint-config-next": "15.3.3",
     "postcss": "^8.5.4",
     "tailwindcss": "^4.1.8",
-    "typescript": "^5"
+    "typescript": "^5",
+    "prisma": "^6.16.0",
+    "tsx": "^4.20.3"
   }
 }

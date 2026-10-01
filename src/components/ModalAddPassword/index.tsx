@@ -34,10 +34,11 @@ export default function ModalAddSenha({
 useEffect(() => {
   setSenhasSalvas([
     ...(user?.senhasSalvas || []),
-    { nome: nome, senha: password, id: Date.now() },
+    { nome: nome, senha: password, id: crypto.randomUUID() },
   ]);
-},[nome])
+},[nome, password, user?.senhasSalvas])
   const handleSave = () => {
+    if (!nome.trim() || !password) return;
     setloading(true)
     dispatch(updateUserRequest({senhasSalvas: senhasSalvas, id: user?.id, email:user?.email}));
     setTimeout(() => {

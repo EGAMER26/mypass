@@ -8,10 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { ApplicationState } from "@/store";
 import { updateModals } from "@/store/modules/Modals/actions";
-import { postUsersRequest } from "@/store/modules/Users/actions";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { LoaderPinwheel } from "lucide-react";
 
 type FormData = {
   nome: string;
@@ -38,8 +36,6 @@ export default function ModalCadastro() {
 
   // State for password visibility
   const [showPassword, setShowPassword] = useState(false);
-  const users = useSelector((state: ApplicationState) => state?.Users.data);
-  const loading = useSelector((state: ApplicationState) => state?.Users.loading);
 
   // Watch the password field for changes
   const password = watch("password");
@@ -101,25 +97,19 @@ export default function ModalCadastro() {
   };
 
   const onSubmit = async (data: FormData) => {
-      const exist = users.find((value) => value.email === data.email);
-      if(exist) {
-        toast.error('E-mail já cadastrado',
-          {theme: "dark"}
-        )
-        return
+      const response = await fetch("/api/account", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: data.nome, email: data.email, password: data.password }) });
+      if (!response.ok) {
+        toast.error(response.status === 409 ? "E-mail já cadastrado" : "Não foi possível criar a conta", { theme: "dark" });
+        return;
       }
-      // setTimeout(() => {
-        dispatch(postUsersRequest({nome: data.nome, email: data.email, senha: data.password, typeAuth: 'Tradicional', profilePic: ""}))
-      // },1000)
-      if(!loading) {
-        await signIn("credentials", {
+      const result = await signIn("credentials", {
           redirect: false, // Não redireciona automaticamente, vamos lidar com o resultado
           email: data.email,
           password: data.password,
-        });
+      });
+      if (result?.error) { toast.error("Conta criada, mas o login falhou", { theme: "dark" }); return; }
         dispatch(updateModals({ cadastro: false }))
         router.push("/");
-      }
     };
 
   return (
@@ -266,7 +256,7 @@ export default function ModalCadastro() {
                 type="submit"
                 className="w-full text-center flex justify-center items-center bg-violet-500 hover:bg-violet-600 text-white font-semibold py-2 px-4 rounded-lg transition"
               >
-                {loading ? <LoaderPinwheel className="animate-spin"/> : "Criar conta"}
+                Criar conta
               </button>
             </form>
 

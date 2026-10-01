@@ -7,26 +7,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ApplicationState } from '@/store';
 import { updateModals } from '@/store/modules/Modals/actions';
 import { updateUserRequest } from '@/store/modules/User/actions';
+import { IUser } from '@/store/modules/User/types';
 
 // Re-definir interfaces para garantir que estão importadas corretamente
-interface ISenhas {
-  id: number;
-  nome?: string;
-  senha?: string;
-  createdAt?: string;
-}
-
-export interface IUser {
-  id?: number;
-  nome?: string | null;
-  email?: string | null;
-  senha?: string;
-  profilePic?: string | null;
-  typeAuth?: string | null; // Tipo de autenticação (ex: "google", "email/password")
-  senhasSalvas?: ISenhas[];
-  createdAt?: string; // Data de criação da conta
-}
-
 export default function ModalProfile() {
   const dispatch = useDispatch();
   const user = useSelector((state: ApplicationState) => state?.User.data as IUser | null); // Casting para IUser | null

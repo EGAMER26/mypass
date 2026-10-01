@@ -32,10 +32,10 @@ export default function ModalSenhas({ show }: ModalSenhasProps) {
   const user = useSelector((state: ApplicationState) => state?.User.data);
   const dispatch = useDispatch();
 
-  const [revealedId, setRevealedId] = useState<number | null>(null);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [revealedId, setRevealedId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [editedName, setEditedName] = useState<string>("");
-  const [copied, setCopied] = useState<{ id: number | null; copied: boolean }>({
+  const [copied, setCopied] = useState<{ id: string | null; copied: boolean }>({
     id: null,
     copied: false,
   });
@@ -49,11 +49,11 @@ export default function ModalSenhas({ show }: ModalSenhasProps) {
     }
   }, [user?.senhasSalvas, show]);
 
-  const toggleReveal = (id: number) => {
+  const toggleReveal = (id: string) => {
     setRevealedId((prev) => (prev === id ? null : id));
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (!user || !user.senhasSalvas) return;
     const updatedSenhas = user.senhasSalvas.filter((item) => item.id !== id);
     dispatch(updateUserRequest({ ...user, senhasSalvas: updatedSenhas }));
@@ -70,7 +70,7 @@ export default function ModalSenhas({ show }: ModalSenhasProps) {
     setEditedName(item.nome);
   };
 
-  const saveEditedName = (id: number) => {
+  const saveEditedName = (id: string) => {
     if (!user || !user.senhasSalvas) return;
     const updatedSenhas = user.senhasSalvas.map((item) =>
       item.id === id ? { ...item, nome: editedName } : item
