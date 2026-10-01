@@ -29,6 +29,7 @@ export default function PasswordGenerator() {
     false
   );
   const [showAddPasswords, setShowAddPasswords] = useState(false);
+  const [scrollPasswordsToBottom, setScrollPasswordsToBottom] = useState(false);
   const passwordsOpen = useSelector(
     (state: ApplicationState) => state?.Modals.data.passwords
   );
@@ -149,11 +150,18 @@ export default function PasswordGenerator() {
 
   return (
     <>
-      <ModalSenhas show={showPasswords} />
+      <ModalSenhas
+        show={showPasswords}
+        scrollToBottom={scrollPasswordsToBottom}
+        onScrolledToBottom={() => setScrollPasswordsToBottom(false)}
+      />
       <ModalAddSenha
         show={showAddPasswords}
         onClose={() => setShowAddPasswords(false)}
-        onSave={() => setShowAddPasswords(false)}
+        onSave={() => {
+          setShowAddPasswords(false);
+          setScrollPasswordsToBottom(true);
+        }}
         password={password}
       />
       <LoginForm />

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { X, Eye, EyeOff, Copy, Trash2 } from "@geist-ui/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,6 +12,8 @@ import { useSession } from "next-auth/react";
 
 interface ModalSenhasProps {
   show?: boolean;
+  scrollToBottom?: boolean;
+  onScrolledToBottom?: () => void;
 }
 
 const itemVariants = {
@@ -28,18 +30,21 @@ const containerVariants = {
   },
 };
 
-export default function ModalSenhas({ show }: ModalSenhasProps) {
+export default function ModalSenhas({ show, scrollToBottom, onScrolledToBottom }: ModalSenhasProps) {
   const user = useSelector((state: ApplicationState) => state?.User.data);
   const dispatch = useDispatch();
 
   const [revealedId, setRevealedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedName, setEditedName] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<ISenhas | null>(null);
   const [copied, setCopied] = useState<{ id: string | null; copied: boolean }>({
     id: null,
     copied: false,
   });
   const { data: session } = useSession();
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (user?.senhasSalvas) {
@@ -49,15 +54,32 @@ export default function ModalSenhas({ show }: ModalSenhasProps) {
     }
   }, [user?.senhasSalvas, show]);
 
+  useEffect(() => {
+    if (!show || !scrollToBottom || !user?.senhasSalvas?.length) return;
+    const frame = requestAnimationFrame(() => {
+      listRef.current?.scrollTo({
+        top: listRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+      onScrolledToBottom?.();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [show, scrollToBottom, user?.senhasSalvas?.length, onScrolledToBottom]);
+
   const toggleReveal = (id: string) => {
     setRevealedId((prev) => (prev === id ? null : id));
   };
 
-  const handleDelete = (id: string) => {
-    if (!user || !user.senhasSalvas) return;
-    const updatedSenhas = user.senhasSalvas.filter((item) => item.id !== id);
+  const requestDelete = (item: ISenhas) => {
+    setPendingDelete(item);
+  };
+
+  const confirmDelete = () => {
+    if (!user || !user.senhasSalvas || !pendingDelete) return;
+    const updatedSenhas = user.senhasSalvas.filter((item) => item.id !== pendingDelete.id);
     dispatch(updateUserRequest({ ...user, senhasSalvas: updatedSenhas }));
     setRevealedId(null);
+    setPendingDelete(null);
   };
 
   const handleCopy = (text: string) => {
@@ -81,6 +103,9 @@ export default function ModalSenhas({ show }: ModalSenhasProps) {
   };
 
   const senhasParaExibir = user?.senhasSalvas || [];
+  const senhasFiltradas = senhasParaExibir.filter((item) =>
+    (item.nome || "").toLowerCase().includes(searchTerm.trim().toLowerCase())
+  );
 
   return (
     <AnimatePresence>
@@ -111,19 +136,32 @@ export default function ModalSenhas({ show }: ModalSenhasProps) {
 
             {session ? (
               <>
+                <input
+                  type="search"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  placeholder="Buscar senha pelo nome..."
+                  aria-label="Buscar senha pelo nome"
+                  className="w-full mb-4 px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-white/80 dark:bg-zinc-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-violet-400"
+                />
                 {senhasParaExibir.length === 0 ? (
                   <p className="text-center text-gray-700 dark:text-gray-300">
                     Nenhuma senha salva.
                   </p>
+                ) : senhasFiltradas.length === 0 ? (
+                  <p className="text-center text-gray-700 dark:text-gray-300">
+                    Nenhuma senha encontrada.
+                  </p>
                 ) : (
                   <motion.div
+                    ref={listRef}
                     className="space-y-6 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar scrollbar-hidden"
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
                   >
                     <AnimatePresence>
-                      {senhasParaExibir.map((item) => {
+                      {senhasFiltradas.map((item) => {
                         const id = item.id;
                         const isRevealed = revealedId === id;
                         const isEditing = editingId === id;
@@ -217,7 +255,7 @@ export default function ModalSenhas({ show }: ModalSenhasProps) {
                                   )}
                                 </button>
                                 <button
-                                  onClick={() => handleDelete(id)}
+                                  onClick={() => requestDelete(item)}
                                   className="p-1 rounded-full bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 transition"
                                   aria-label="Excluir senha"
                                 >
@@ -260,6 +298,53 @@ export default function ModalSenhas({ show }: ModalSenhasProps) {
                 </button>
               </div>
             )}
+
+            <AnimatePresence>
+              {pendingDelete && (
+                <motion.div
+                  className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-black/60 p-6 backdrop-blur-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="delete-password-title"
+                >
+                  <motion.div
+                    className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-zinc-900"
+                    initial={{ scale: 0.95, y: 10 }}
+                    animate={{ scale: 1, y: 0 }}
+                    exit={{ scale: 0.95, y: 10 }}
+                  >
+                    <h3
+                      id="delete-password-title"
+                      className="text-lg font-bold text-gray-900 dark:text-gray-100"
+                    >
+                      Excluir senha?
+                    </h3>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                      A senha <strong>{pendingDelete.nome || "selecionada"}</strong> será excluída permanentemente.
+                    </p>
+                    <div className="mt-6 flex justify-end gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setPendingDelete(null)}
+                        className="rounded-md bg-gray-200 px-4 py-2 text-gray-800 transition hover:bg-gray-300 dark:bg-zinc-700 dark:text-gray-100 dark:hover:bg-zinc-600"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={confirmDelete}
+                        className="rounded-md bg-red-600 px-4 py-2 font-semibold text-white transition hover:bg-red-700"
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </motion.div>
       )}
